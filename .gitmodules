@@ -1,3 +1,6 @@
 [submodule "esp-serial-flasher/examples/OTA_UPDATE_FPGA_USING_ESP32"]
 	path = esp-serial-flasher/examples/OTA_UPDATE_FPGA_USING_ESP32
 	url = https://github.com/SurajSonawane2415/OTA_UPDATE_FPGA_USING_ESP32.git
+[submodule "OTA_UPDATE_ESP32"]
+	path = OTA_UPDATE_ESP32
+	url = https://github.com/SurajSonawane2415/OTA_UPDATE_ESP32
