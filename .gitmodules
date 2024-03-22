@@ -4,3 +4,6 @@
 [submodule "OTA_UPDATE_ESP32"]
 	path = OTA_UPDATE_ESP32
 	url = https://github.com/SurajSonawane2415/OTA_UPDATE_ESP32
+[submodule "components/esp-serial-flasher"]
+	path = components/esp-serial-flasher
+	url = https://github.com/espressif/esp-serial-flasher
