@@ -6,7 +6,7 @@ Develope a bootloader for the ESP32 microcontroller to enable flashing of multip
 
 ## Demo
 
-## Future Scope
+## Future Scope 
 
 - [ ] Implement [Over The Air Updates (OTA)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/ap1-reference/system/ota.html) Firmware update in bootloader stage to eliminate need of Master ESP for flashing the firmware.
 
