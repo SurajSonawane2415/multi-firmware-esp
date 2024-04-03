@@ -6,6 +6,10 @@ Develope a bootloader for the ESP32 microcontroller to enable flashing of multip
 
 ## Demo
 
+
+https://github.com/SurajSonawane2415/multi-firmware-esp/assets/129578177/d3a5834c-3084-4c83-a85e-c9e183cdd8c1
+
+
 ## Future Scope 
 
 - [ ] Implement [Over The Air Updates (OTA)](https://docs.espressif.com/projects/esp-idf/en/stable/esp32/ap1-reference/system/ota.html) Firmware update in bootloader stage to eliminate need of Master ESP for flashing the firmware.
@@ -26,9 +30,9 @@ Develope a bootloader for the ESP32 microcontroller to enable flashing of multip
 
 ## Acknowledgements
 
-[SRA VITI](https://sravjti.in/) for providing us with required resources and Special thanks to my mentors [Moteen Shah](https://github.com/Jamme2) and all the seniors at SRA, VJTI for their
+[SRA VITI](https://sravjti.in/) for providing us with required resources and Special thanks to my mentors [Moteen Shah](https://github.com/Jamm02) and all the seniors at SRA, VJTI for their
 constant support and guidance throughout the project.
 
 ## License
 
-[MIT License](https://opensource.org/license/mit/)
+[MIT License](https://opensource.org/license/mit)
