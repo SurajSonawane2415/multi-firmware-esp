@@ -18,7 +18,7 @@ Develope a bootloader for the ESP32 microcontroller to enable flashing of multip
 
 - [Bootloader ESP32](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/apiguides/bootloader.html)
 
-- [Bootloader Stages]([https://embeddedinventor.com/embedded-bootloader-and booting by processexplained/](https://embeddedinventor.com/embedded-bootloader-and-booting-process-explained/))
+- [Bootloader Stages](https://embeddedinventor.com/embedded-bootloader-and-booting-process-explained/)
 
 - [Custom Bootloader](https://esp32.com/viewtopic.php?t=29232)
 
