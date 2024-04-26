@@ -6,12 +6,13 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
+  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
+  * All rights reserved.</center></h2>
   *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
   *
   ******************************************************************************
   */
@@ -31,21 +32,50 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define MAJOR 0   // BL Major version Number
-#define MINOR 1   // BL Minor version Number
+
+/* Below defines a function pointer called ptrF, with return type void,
+ * and a argument of uint32_t.
+ */
+typedef void (*ptrF)(uint32_t dlyticks);
+
+typedef void (*pFunction)(void);
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-
 UART_HandleTypeDef huart3;
 
 /* USER CODE BEGIN PV */
-const uint8_t BL_Version[2] = { MAJOR, MINOR };
+
+#ifdef FIRST_VIDEO
+unsigned char __attribute__((section(".myBufSectionRAM"))) buf_ram[512];
+
+/* If you want to see below 10 pre-set data, you need to :
+ * 1. Go to Run -> Debug, press F11;
+ * 2. Keep everything default and click OK;
+ * 3. Go to Window -> Show View -> Memory -> Click the + Button at Monitors window -> Fill in 0x8001000, which
+ *    is the assigned address in linker file.
+ */
+const unsigned char __attribute__((section(".myBufSectionFLASH"))) buf_flash[10] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+#endif
+
+/* For functions in flash*/
+#define LOCATE_FUNC __attribute__((section(".mysection")))
+
+/* We just divided flash into 3 region:
+ * (1) FLASH :     0x8000000 - 0x8008000,   LENGTH = 32K
+ * (2) TBD
+ * (3) MY_MEMORY : 0x8018000 - 0x8020000,   LENGTH = 32K */
+
+/* 0x8000 = 32k Offset (of Flash), the 2nd region in memory define for APP. */
+#define FLASH_APP_ADDR 0x8008000
+
+void go2APP(void);
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -53,11 +83,49 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART3_UART_Init(void);
 /* USER CODE BEGIN PFP */
-static void goto_application( void );
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+/* Function in Flash */
+
+// Before jumping to app, we should disable all IRQs and clear pending IRQs.
+// Print content at (FLASH_APP_ADDR) and (FLASH_APP_ADDR + 4).
+void go2APP(void)
+{
+	uint32_t JumpAddress;
+	pFunction Jump_To_Application;
+
+	printf("BOOTLOADER Start \r\n");
+
+	// Check if there is something installed in the 'App' region in flash.
+	if (((*(uint32_t *)FLASH_APP_ADDR) & 0x2FFE0000) == 0x20000000)
+	{
+		printf("App Start \r\n");
+		HAL_Delay(100);
+
+		// Get data in second 32-bit in app section. First executable address.
+		JumpAddress = *(uint32_t *)(FLASH_APP_ADDR + 4);
+		Jump_To_Application = (pFunction)JumpAddress;
+
+		// Initialize app's stack pointer
+		__set_MSP(*(uint32_t *)FLASH_APP_ADDR);
+		Jump_To_Application();
+	}
+	else
+	{
+		printf("No App Found \r\n");
+		// HAL_Delay(1000);
+	}
+}
+// Below id for using printf() embedded in CubeIDE serial terminal.
+
+
+/* Function resides in flash, but will load to RAM during initialization. */
+// void __attribute__((section(".RamFunc"))) TurnOnLED(GPIO_PinState PinState)
+// The __ before and after 'section' doesn't matter.
 
 /* USER CODE END 0 */
 
@@ -92,12 +160,9 @@ int main(void)
   MX_GPIO_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  printf("Starting Bootloader(%d.%d)\n", BL_Version[0], BL_Version[1] );
-  // Turn ON the Green Led to tell the user that Bootloader is running
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_SET );    //Green LED ON
-  HAL_Delay(2000);   //2sec delay for nothing
+
   /* USER CODE END 2 */
-  goto_application();
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
@@ -105,6 +170,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  // Blink(500);
+   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+   HAL_Delay(1000);
+   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+   HAL_Delay(2000);
+   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+
+	  go2APP();
+	  HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -197,11 +271,22 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PA5 */
+  GPIO_InitStruct.Pin = GPIO_PIN_5;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PB0 */
   GPIO_InitStruct.Pin = GPIO_PIN_0;
@@ -215,40 +300,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
-  * @brief Print the characters to UART (printf).
-  * @retval int
-  */
-#ifdef __GNUC__
-  /* With GCC, small printf (option LD Linker->Libraries->Small printf
-     set to 'Yes') calls __io_putchar() */
-int __io_putchar(int ch)
-#else
-int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
-{
-  /* Place your implementation of fputc here */
-  /* e.g. write a character to the UART3 and Loop until the end of transmission */
-  HAL_UART_Transmit(&huart3, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
 
-  return ch;
-}
-
-/**
-  * @brief Jump to application from the Bootloader
-  * @retval None
-  */
-static void goto_application(void)
-{
-  printf("Gonna Jump to Application\n");
-
-  void (*app_reset_handler)(void) = (void*)(*((volatile uint32_t*) (0x08040000 + 4U)));
-
-  // Turn OFF the Green Led to tell the user that Bootloader is not running
-  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0, GPIO_PIN_RESET );    //Green LED OFF
-  /* Jump to application */
-  app_reset_handler();    //call the app reset handler
-}
 /* USER CODE END 4 */
 
 /**
