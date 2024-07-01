@@ -1,6 +1,6 @@
 # Multi-Firmware-ESP
 
-Develop a bootloader for the ESP32 microcontroller to enable flashing of multiple firmware versions and navigation between them using switches.
+Developed a bootloader for the ESP32 microcontroller to enable flashing of multiple firmware versions and navigation between them using switches.
 
 ## Table of Contents
 
