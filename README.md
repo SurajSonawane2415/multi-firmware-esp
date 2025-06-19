@@ -2,6 +2,7 @@
 
 Developed a bootloader for the ESP32 microcontroller to enable flashing of multiple firmware versions and navigation between them using switches.
 
+![Project Logo](https://github.com/user-attachments/assets/d3d3317a-368e-455b-9432-a88ce6480450)
 ## Table of Contents
 
 - [Multi-Firmware-ESP](#multi-firmware-esp)
